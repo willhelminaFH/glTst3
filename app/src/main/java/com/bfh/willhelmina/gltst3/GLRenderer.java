@@ -310,17 +310,52 @@ public class GLRenderer implements Renderer {
         xR = e.getX()/mScreenWidth;
         yR = e.getY()/mScreenHeight;
 
-        if(xR < 1/6&&yR>1/6){
-            curImg = 0;
+        //set image val, this should be imediately visable
+        if(xR >= 5/6&&yR<=5/6){
+            curVal = yR + yR*(1/6);//I think this is the right way to adjust for the offset *DRUNK MATH*
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("DRUNK VALS:"+curVal);
+            return;
         }
-
-        if(xR < 1/6&&yR>1/6){
+        
+        //set active image
+        if(xR >= 5/6&&yR>5/6){
+            curImg = 5;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
+        }
+        if(xR >= 4/6&&yR>5/6){
+            curImg = 4;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
+        }
+        if(xR >= 3/6&&yR>5/6){
+            curImg = 3;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
+        }
+        if(xR >= 2/6&&yR>5/6) {
+            curImg = 2;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
+        }
+        if(xR >= 1/6&&yR>5/6){
             curImg = 1;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
+        }
+        if(xR < 1/6&&yR>5/6){
+            curImg = 0;
+            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
+            System.out.println("*DRUNK IND:*"+ curImg);
+            return;
         }
 
-        if(xR > 1/6&&yR>1/6){
-            curImg = 0;
-        }
         System.out.println(e.getX()+" "+e.getY());
         System.out.println(xR+" "+yR);
 
