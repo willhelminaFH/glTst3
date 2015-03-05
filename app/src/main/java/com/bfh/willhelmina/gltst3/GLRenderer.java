@@ -43,13 +43,25 @@ public class GLRenderer implements Renderer {
 	Context mContext;
 	long mLastTime;
 	int mProgram;
-    float mVals[] = {1.0f,0,0,0,0,0};
+    float[] m0Vals = new float[]{1/6,1/6,1/6};
+    float[] m1Vals = new float[]{1/6,1/6,1/6};
+    public FloatBuffer tfBuff;
+    float[] tVals;
     public Rect image;
+    int fCnt;
+
+
+    //touc
 	
 	public GLRenderer(Context c)
 	{
 		mContext = c;
 		mLastTime = System.currentTimeMillis() + 100;
+        ByteBuffer bb = ByteBuffer.allocateDirect(m0Vals.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        tfBuff = bb.asFloatBuffer();
+        tfBuff.put(m0Vals);
+        tfBuff.position(0);
 	}
 	
 	public void onPause()
@@ -65,6 +77,8 @@ public class GLRenderer implements Renderer {
 	
 	@Override
 	public void onDrawFrame(GL10 unused) {
+
+        //
 		
 		// Get the current time
     	long now = System.currentTimeMillis();
@@ -82,6 +96,8 @@ public class GLRenderer implements Renderer {
 		
 		// Save the current time to see how long it took :).
         mLastTime = now;
+
+        fCnt++;
 		
 	}
 	
@@ -89,10 +105,73 @@ public class GLRenderer implements Renderer {
 		
 		// clear Screen and Depth Buffer, we have set the clear color as black.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        
+
+        int mModAccess0 = GLES20.glGetUniformLocation(riGraphicTools.sp_Image,
+                                                      "a0Mod"//"modIn"
+        );
+
+        GLES20.glUniform3f(mModAccess0, m0Vals[0],m0Vals[1],m0Vals[2]);
+
+        int mModAccess1 = GLES20.glGetUniformLocation(riGraphicTools.sp_Image,
+                "a1Mod"//"modIn"
+        );
+
+        GLES20.glUniform3f(mModAccess1, m1Vals[0],m1Vals[1],m1Vals[2]);
+
+        /*
+        GLES20.glEnableVertexAttribArray(mModAccess0);
+
+        GLES20.glVertexAttribPointer(mModAccess0,
+                3,
+                GLES20.GL_FLOAT,
+                true,//false,
+                0,
+                toFloatBuff(m0Vals)
+        );
+
+        int mModAccess1 = GLES20.glGetAttribLocation(riGraphicTools.sp_Image,
+                "a1Mod"//"modIn"
+        );
+
+
+        GLES20.glEnableVertexAttribArray(mModAccess1);
+
+        GLES20.glVertexAttribPointer(mModAccess1,
+                3,
+                GLES20.GL_FLOAT,
+                true,//false,
+                0,
+                toFloatBuff(m1Vals)
+        );
+
+        /*
+        //get handle to vertex shader's image mod variable "modIn"
+        //System.out.println("***getting modIn handle***");
+        int mModHandle = GLES20.glGetAttribLocation(riGraphicTools.sp_Image,
+                                                    "cMod"//"modIn"
+                                                    );
+
+
+        // Enable generic vertex attribute array
+        //System.out.println("***enabling modIn handle***");
+        GLES20.glEnableVertexAttribArray(mModHandle);
+
+        //pass values to shader prog
+        //System.out.println("***passing vals to shader***");
+        GLES20.glVertexAttribPointer(mModHandle,
+                                     6,
+                                     GLES20.GL_FLOAT,
+                                     true,
+                                     0,
+                                     mVals
+                                     );
+                                     */
+
+
+
         // get handle to vertex shader's vPosition member
 	    int mPositionHandle = GLES20.glGetAttribLocation(riGraphicTools.sp_Image, "vPosition");
-	    
+
 	    // Enable generic vertex attribute array
 	    GLES20.glEnableVertexAttribArray(mPositionHandle);
 
@@ -131,6 +210,8 @@ public class GLRenderer implements Renderer {
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mTexCoordLoc);
+        //GLES20.glDisableVertexAttribArray(mModAccess0);
+        //GLES20.glDisableVertexAttribArray(mModAccess1);
         	
 	}
 	
@@ -201,6 +282,7 @@ public class GLRenderer implements Renderer {
 	    
 	    // Set our shader programm
 		GLES20.glUseProgram(riGraphicTools.sp_Image);
+        System.out.println("***surface setup complete***");
 	}
 	
 	public void SetupImage()
@@ -303,61 +385,39 @@ public class GLRenderer implements Renderer {
 
 
     void processTouchEvent(MotionEvent e){
-        //0,0 = upper left
-        //R 1,1 = lower right
-        int curImg;
-        float curVal, xR, yR;
-        xR = e.getX()/mScreenWidth;
-        yR = e.getY()/mScreenHeight;
 
-        //set image val, this should be imediately visable
-        if(xR >= 5/6&&yR<=5/6){
-            curVal = yR + yR*(1/6);//I think this is the right way to adjust for the offset *DRUNK MATH*
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("DRUNK VALS:"+curVal);
-            return;
-        }
-        
-        //set active image
-        if(xR >= 5/6&&yR>5/6){
-            curImg = 5;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
-        if(xR >= 4/6&&yR>5/6){
-            curImg = 4;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
-        if(xR >= 3/6&&yR>5/6){
-            curImg = 3;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
-        if(xR >= 2/6&&yR>5/6) {
-            curImg = 2;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
-        if(xR >= 1/6&&yR>5/6){
-            curImg = 1;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
-        if(xR < 1/6&&yR>5/6){
-            curImg = 0;
-            System.out.println("*CUR X,Y:*"+ xR+" "+yR);
-            System.out.println("*DRUNK IND:*"+ curImg);
-            return;
-        }
+    }
+    void pushMotion(float[] vars){
 
-        System.out.println(e.getX()+" "+e.getY());
-        System.out.println(xR+" "+yR);
+        rotateInput(vars);
+        System.out.println("***INPUT VARS "+vars[0]+" "+vars[1]+" "+vars[2]+" "+vars[3]+" "+vars[4]+" "+vars[5]+"***");
+        m0Vals = new float[]{vars[0],vars[1],vars[2]};
+        m1Vals = new float[]{vars[3],vars[4],vars[5]};
 
+    }
+    FloatBuffer toFloatBuff(float[] array){
+
+
+        ByteBuffer bb = ByteBuffer.allocateDirect(array.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        tfBuff = bb.asFloatBuffer();
+        tfBuff.put(array);
+        tfBuff.position(0);
+
+        return tfBuff;
+    };
+
+    float[] rotateInput(float[] vars){
+        for(int i = 0; i< vars.length; i++){
+            float mod = ((float)(fCnt*i)%100f)/100f;
+            System.out.println("ind:"+i+" val:"+ mod+" cnt:"+fCnt*i%100);
+            vars[i] = vars[i]*mod;
+        }
+        float rMod = 1/(vars[0]+vars[1]+vars[2]+vars[3]+vars[4]+vars[5]);
+        float rVars[] = new float[6];
+        for(int i = 0; i<vars.length;i++){
+            rVars[i] = vars[i]*rMod;
+        }
+        return vars;
     }
 }
