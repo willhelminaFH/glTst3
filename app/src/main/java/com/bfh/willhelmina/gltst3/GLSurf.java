@@ -9,8 +9,6 @@ public class GLSurf extends GLSurfaceView {
     private final GLRenderer mRenderer;
     int mScreenWidth;
     int mScreenHeight;
-    //int curImg = 0;
-    float curVal, xR, yR, vars[];
 
     public GLSurf(Context context) {
         super(context);
@@ -24,9 +22,17 @@ public class GLSurf extends GLSurfaceView {
         mRenderer = new GLRenderer(context);
         setRenderer(mRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        vars = new float[]{1.0f, 0, 0, 0, 0, 0};
     }
 
+    // touch in
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        System.out.println("touch captured");
+        mRenderer.processTouch(e);
+        return true;
+    }
+
+    // pause/resume
     @Override
     public void onPause() {
         super.onPause();
@@ -39,11 +45,4 @@ public class GLSurf extends GLSurfaceView {
         mRenderer.onResume();
     }
 
-
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        System.out.println("touch captured");
-        mRenderer.processTouch(e);
-        return true;
-    }
 }

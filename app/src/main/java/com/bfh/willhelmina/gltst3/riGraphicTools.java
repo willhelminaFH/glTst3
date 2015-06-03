@@ -30,7 +30,7 @@ public class riGraphicTools {
 
 	    "  gl_Position = uMVPMatrix * vPosition;" +
 	    "  v_texCoord = a_texCoord;" +
-        "  imgOff0 = v_texCoord+vec2(0,1.0/3.0);"+//these should get moved to the vertex shader and declaired like: varying vec2...
+        "  imgOff0 = v_texCoord+vec2(0,1.0/3.0);"+
         "  imgOff1 = v_texCoord+vec2(0,2.0/3.0);"+
         "  imgOff2 = v_texCoord+vec2(1/2,0);"+
         "  imgOff3 = v_texCoord+vec2(1/2,1.0/3.0);"+

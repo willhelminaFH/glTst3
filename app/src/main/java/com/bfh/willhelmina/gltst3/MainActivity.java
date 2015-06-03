@@ -1,6 +1,5 @@
 package com.bfh.willhelmina.gltst3;
 
-import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -39,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(glSurfaceView);
     }
 
-    //Action bar stuff, pointless at the moment but leaving it in
+    //Action bar stuff, pointless at the moment but leaving it in for later
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // nothing in the menu but leaving it for the FUTURE

@@ -80,27 +80,18 @@ public class GLRenderer implements Renderer {
 	
 	@Override
 	public void onDrawFrame(GL10 unused) {
-
-        //
-		
-		// Get the current time
+		// get the current time
     	long now = System.currentTimeMillis();
     	
-    	// We should make sure we are valid and sane
+    	// ensure time is not running backward
     	if (mLastTime > now) return;
-        
-    	// Get the amount of time the last frame took.
-    	long elapsed = now - mLastTime;
-		
-		// Update our example
-		
-		// Render our example
-		Render(mtrxProjectionAndView);
-		
-		// Save the current time to see how long it took :).
-        mLastTime = now;
 
+		// render
+		Render(mtrxProjectionAndView);
+
+        // update vars
         fCnt++;
+        mLastTime = now;
 		
 	}
 	
@@ -109,19 +100,23 @@ public class GLRenderer implements Renderer {
 		// clear Screen and Depth Buffer, we have set the clear color as black.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
+        // get openGL input 1
         int mModAccess0 = GLES20.glGetUniformLocation(riGraphicTools.sp_Image,
-                                                      "a0Mod"//"modIn"
-        );
+                                                      "a0Mod"
+                                                     );
 
+        //push input vars
         GLES20.glUniform3f(mModAccess0, tValsB[0],tValsB[1],tValsB[2]);
 
+        // get openGL input 2
         int mModAccess1 = GLES20.glGetUniformLocation(riGraphicTools.sp_Image,
-                "a1Mod"//"modIn"
-        );
+                                                      "a1Mod"
+                                                     );
 
+        //push input vars
         GLES20.glUniform3f(mModAccess1, tValsB[3],tValsB[4],tValsB[5]);
 
-        // get handle to vertex shader's vPosition member
+        // get handle to vertex shader's vPosition
 	    int mPositionHandle = GLES20.glGetAttribLocation(riGraphicTools.sp_Image, "vPosition");
 
 	    // Enable generic vertex attribute array
@@ -203,27 +198,25 @@ public class GLRenderer implements Renderer {
 
         System.out.println("****BITCHES"+mScreenWidth+" "+ mScreenHeight+"BITCHES****");
 
-		// Create the triangles
+		// create the triangles
 		SetupTriangle();
-		// Create the image information
+
+		// create the image information
 		SetupImage();
 		
 		// Set the clear color to black
 		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
 
-	    // Create the shaders, solid color
+	    // create the shaders
 	    int vertexShader = riGraphicTools.loadShader(GLES20.GL_VERTEX_SHADER, riGraphicTools.vs_Image);
 	    int fragmentShader = riGraphicTools.loadShader(GLES20.GL_FRAGMENT_SHADER, riGraphicTools.fs_Image);
 
-	    riGraphicTools.sp_Image = GLES20.glCreateProgram();             // create empty OpenGL ES Program
-	    GLES20.glAttachShader(riGraphicTools.sp_Image, vertexShader);   // add the vertex shader to program
-	    GLES20.glAttachShader(riGraphicTools.sp_Image, fragmentShader); // add the fragment shader to program
-	    GLES20.glLinkProgram(riGraphicTools.sp_Image);                  // creates OpenGL ES program executables
-	    
-	    
-	    // Set our shader programm
+        // compile and setup setup shader program
+	    riGraphicTools.sp_Image = GLES20.glCreateProgram();
+	    GLES20.glAttachShader(riGraphicTools.sp_Image, vertexShader);
+	    GLES20.glAttachShader(riGraphicTools.sp_Image, fragmentShader);
+	    GLES20.glLinkProgram(riGraphicTools.sp_Image);
 		GLES20.glUseProgram(riGraphicTools.sp_Image);
-        System.out.println("***surface setup complete***");
 	}
 	
 	public void SetupImage(){
@@ -233,7 +226,6 @@ public class GLRenderer implements Renderer {
         uvs = new float[6*4*2];
         for(float i = 0; i<3; i++){
             for (float j = 0; j<2; j++) {
-                //uv coords
                 uvs[ind * 8]     = j/2.0f;
                 uvs[ind * 8 + 1] = i/3.0f;
                 uvs[ind * 8 + 2] = j/2.0f;
@@ -246,7 +238,7 @@ public class GLRenderer implements Renderer {
             }
         }
 
-		// The texture buffer
+		// setup texture buffer
 		ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
 		bb.order(ByteOrder.nativeOrder());
 		uvBuffer = bb.asFloatBuffer();
@@ -263,7 +255,6 @@ public class GLRenderer implements Renderer {
 
 		// Temporary create a bitmap
 		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id);
-        //System.out.println("**bmp id: "+bmp.toString()+"**");
 
 		// Bind texture to texturename
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -275,25 +266,24 @@ public class GLRenderer implements Renderer {
         
         // Load the bitmap into the bound texture.
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
-        
-        // We are done using the bitmap so we should recycle it.
 		bmp.recycle();
 
 	}
 	
 	public void SetupTriangle()
 	{
-		// We have to create the vertices of our triangle.
+		//setup triangle vertices
 		vertices = new float[]
 		           {0.0f, mScreenWidth, 0.0f,
 					0.0f, 100f, 0.0f,
                     mScreenWidth, 100f, 0.0f,
                     mScreenWidth, mScreenWidth, 0.0f,
 		           };
-		
-		indices = new short[] {0, 1, 2, 0, 2, 3}; // The order of vertexrendering.
 
-		// The vertex buffer.
+        // The order of vertex rendering.
+		indices = new short[] {0, 1, 2, 0, 2, 3};
+
+		// vertex buffer
 		ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
 		bb.order(ByteOrder.nativeOrder());
 		vertexBuffer = bb.asFloatBuffer();
@@ -313,36 +303,24 @@ public class GLRenderer implements Renderer {
         int curImgInd = (int) (e.getX()/mScreenWidth * 5);
         float curVal = 1 - e.getY()/mScreenHeight * 2;
         float nCoef = 0;
-        float rMod = 0;
+        float rMod;
 
-        //assign normalized y value to the image corresponding to the x
+        // assign normalized y value to the image corresponding to the x
         tValsA[curImgInd] = curVal;
 
-        //modulate all image values and assign them to the temp array
+        // modulate all image values and assign them to the temp array
         for (int i = 0; i< tValsA.length; i++){
-            rMod = ((float)(fCnt*i)%100f)/100f;
+            rMod = (fCnt*i%100f)/100f;
             tValsB[i] = tValsA[i]*rMod;
             nCoef += tValsB[i];
         }
+
+        // get the reciprocal and distribute it across the array to ensure that
+        // images stay within bounds
         nCoef = 1/nCoef;
         for (int i = 0; i< tValsB.length; i ++){
             tValsB[i] = tValsB[i]*nCoef;
         }
-
-
     }
-
-    //convenience method for making native buffers
-    FloatBuffer toFloatBuff(float[] array){
-
-        ByteBuffer bb = ByteBuffer.allocateDirect(array.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        tfBuff = bb.asFloatBuffer();
-        tfBuff.put(array);
-        tfBuff.position(0);
-
-        return tfBuff;
-    }
-
 }
 
