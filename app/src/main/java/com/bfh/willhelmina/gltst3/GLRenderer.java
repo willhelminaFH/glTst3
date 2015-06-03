@@ -21,7 +21,7 @@ import android.view.MotionEvent;
 
 public class GLRenderer implements Renderer {
 
-	// Our matrices
+	// projection/view matrices
 	private final float[] mtrxProjection = new float[16];
 	private final float[] mtrxView = new float[16];
 	private final float[] mtrxProjectionAndView = new float[16];
@@ -35,23 +35,26 @@ public class GLRenderer implements Renderer {
 	public FloatBuffer uvBuffer;
 
 
-	// Our screenresolution
+	// screen resolution
 	float	mScreenWidth;// = 1280;
 	float	mScreenHeight;// = 768;
 
+
+    //motion
+    float[] tValsA = new float[]{1/6,1/6,1/6,1/6,1/6,1/6};       // stores motion values for images
+    float[] tValsB = new float[]{1/6,1/6,1/6,1/6,1/6,1/6};       // stores modifies for images
+    float[] m0Vals = new float[]{1/6,1/6,1/6};  //vec3f for GLSL
+    float[] m1Vals = new float[]{1/6,1/6,1/6};  //vec3f for GLSL
+    public FloatBuffer tfBuff;                  //stores float to buffer
+
 	// Misc
-	Context mContext;
+	Context mContext; //
 	long mLastTime;
-	int mProgram;
-    float[] m0Vals = new float[]{1/6,1/6,1/6};
-    float[] m1Vals = new float[]{1/6,1/6,1/6};
-    public FloatBuffer tfBuff;
-    float[] tVals;
+
     public Rect image;
     int fCnt;
 
 
-    //touc
 	
 	public GLRenderer(Context c)
 	{
@@ -110,64 +113,13 @@ public class GLRenderer implements Renderer {
                                                       "a0Mod"//"modIn"
         );
 
-        GLES20.glUniform3f(mModAccess0, m0Vals[0],m0Vals[1],m0Vals[2]);
+        GLES20.glUniform3f(mModAccess0, tValsB[0],tValsB[1],tValsB[2]);
 
         int mModAccess1 = GLES20.glGetUniformLocation(riGraphicTools.sp_Image,
                 "a1Mod"//"modIn"
         );
 
-        GLES20.glUniform3f(mModAccess1, m1Vals[0],m1Vals[1],m1Vals[2]);
-
-        /*
-        GLES20.glEnableVertexAttribArray(mModAccess0);
-
-        GLES20.glVertexAttribPointer(mModAccess0,
-                3,
-                GLES20.GL_FLOAT,
-                true,//false,
-                0,
-                toFloatBuff(m0Vals)
-        );
-
-        int mModAccess1 = GLES20.glGetAttribLocation(riGraphicTools.sp_Image,
-                "a1Mod"//"modIn"
-        );
-
-
-        GLES20.glEnableVertexAttribArray(mModAccess1);
-
-        GLES20.glVertexAttribPointer(mModAccess1,
-                3,
-                GLES20.GL_FLOAT,
-                true,//false,
-                0,
-                toFloatBuff(m1Vals)
-        );
-
-        /*
-        //get handle to vertex shader's image mod variable "modIn"
-        //System.out.println("***getting modIn handle***");
-        int mModHandle = GLES20.glGetAttribLocation(riGraphicTools.sp_Image,
-                                                    "cMod"//"modIn"
-                                                    );
-
-
-        // Enable generic vertex attribute array
-        //System.out.println("***enabling modIn handle***");
-        GLES20.glEnableVertexAttribArray(mModHandle);
-
-        //pass values to shader prog
-        //System.out.println("***passing vals to shader***");
-        GLES20.glVertexAttribPointer(mModHandle,
-                                     6,
-                                     GLES20.GL_FLOAT,
-                                     true,
-                                     0,
-                                     mVals
-                                     );
-                                     */
-
-
+        GLES20.glUniform3f(mModAccess1, tValsB[3],tValsB[4],tValsB[5]);
 
         // get handle to vertex shader's vPosition member
 	    int mPositionHandle = GLES20.glGetAttribLocation(riGraphicTools.sp_Image, "vPosition");
@@ -210,8 +162,6 @@ public class GLRenderer implements Renderer {
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mTexCoordLoc);
-        //GLES20.glDisableVertexAttribArray(mModAccess0);
-        //GLES20.glDisableVertexAttribArray(mModAccess1);
         	
 	}
 	
@@ -259,20 +209,11 @@ public class GLRenderer implements Renderer {
 		SetupImage();
 		
 		// Set the clear color to black
-		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);	
+		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
 
 	    // Create the shaders, solid color
-	    int vertexShader = riGraphicTools.loadShader(GLES20.GL_VERTEX_SHADER, riGraphicTools.vs_SolidColor);
-	    int fragmentShader = riGraphicTools.loadShader(GLES20.GL_FRAGMENT_SHADER, riGraphicTools.fs_SolidColor);
-
-	    riGraphicTools.sp_SolidColor = GLES20.glCreateProgram();             // create empty OpenGL ES Program
-	    GLES20.glAttachShader(riGraphicTools.sp_SolidColor, vertexShader);   // add the vertex shader to program
-	    GLES20.glAttachShader(riGraphicTools.sp_SolidColor, fragmentShader); // add the fragment shader to program
-	    GLES20.glLinkProgram(riGraphicTools.sp_SolidColor);                  // creates OpenGL ES program executables
-	    
-	    // Create the shaders, images
-	    vertexShader = riGraphicTools.loadShader(GLES20.GL_VERTEX_SHADER, riGraphicTools.vs_Image);
-	    fragmentShader = riGraphicTools.loadShader(GLES20.GL_FRAGMENT_SHADER, riGraphicTools.fs_Image);
+	    int vertexShader = riGraphicTools.loadShader(GLES20.GL_VERTEX_SHADER, riGraphicTools.vs_Image);
+	    int fragmentShader = riGraphicTools.loadShader(GLES20.GL_FRAGMENT_SHADER, riGraphicTools.fs_Image);
 
 	    riGraphicTools.sp_Image = GLES20.glCreateProgram();             // create empty OpenGL ES Program
 	    GLES20.glAttachShader(riGraphicTools.sp_Image, vertexShader);   // add the vertex shader to program
@@ -285,38 +226,22 @@ public class GLRenderer implements Renderer {
         System.out.println("***surface setup complete***");
 	}
 	
-	public void SetupImage()
-	{
-		// Create our UV coordinates.
-        /*leaving this in, I maybe can just use 1 uv map since I'm always rendering to the same spot
-        *
-        * nm fundamentally flawed assumption.  the UVs represent where on the texture to map
-        * ie. {1/2, 1/3}
-        *
-        * actually not sure if this is even correct any more, may still only need one uv since I've
-        * only got one surface...
-		uvs = new float[] {
-				0.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,			
-				1.0f, 0.0f			
-	    };
-		*/
-
-        //setup uvs, 6 images * 4 verts * (u,v)
+	public void SetupImage(){
         int ind = 0;
+
+        //setup uvs
         uvs = new float[6*4*2];
         for(float i = 0; i<3; i++){
             for (float j = 0; j<2; j++) {
                 //uv coords
-                uvs[ind * 8 + 0] = j/2.0f;//0.0f;
-                uvs[ind * 8 + 1] = i/3.0f;//0.0f;
+                uvs[ind * 8]     = j/2.0f;
+                uvs[ind * 8 + 1] = i/3.0f;
                 uvs[ind * 8 + 2] = j/2.0f;
                 uvs[ind * 8 + 3] = (i+1.0f)/3.0f;
                 uvs[ind * 8 + 4] = (j+1.0f)/2.0f;
                 uvs[ind * 8 + 5] = (i+1.0f)/3.0f;
                 uvs[ind * 8 + 6] = (j+1.0f)/2.0f;
-                uvs[ind * 8 + 7] = i/3.0f;//0.0f;
+                uvs[ind * 8 + 7] = i/3.0f;
                 ind++;
             }
         }
@@ -328,7 +253,7 @@ public class GLRenderer implements Renderer {
 		uvBuffer.put(uvs);
 		uvBuffer.position(0);
 		
-		// Generate Textures, if more needed, alter these numbers.
+		// Gen textures, only using one at the moment
 		int[] texturenames = new int[1];
 		GLES20.glGenTextures(1, texturenames, 0);
 		
@@ -383,20 +308,32 @@ public class GLRenderer implements Renderer {
 		drawListBuffer.position(0);
 	}
 
+    void processTouch(MotionEvent e){
 
-    void processTouchEvent(MotionEvent e){
+        int curImgInd = (int) (e.getX()/mScreenWidth * 5);
+        float curVal = 1 - e.getY()/mScreenHeight * 2;
+        float nCoef = 0;
+        float rMod = 0;
+
+        //assign normalized y value to the image corresponding to the x
+        tValsA[curImgInd] = curVal;
+
+        //modulate all image values and assign them to the temp array
+        for (int i = 0; i< tValsA.length; i++){
+            rMod = ((float)(fCnt*i)%100f)/100f;
+            tValsB[i] = tValsA[i]*rMod;
+            nCoef += tValsB[i];
+        }
+        nCoef = 1/nCoef;
+        for (int i = 0; i< tValsB.length; i ++){
+            tValsB[i] = tValsB[i]*nCoef;
+        }
+
 
     }
-    void pushMotion(float[] vars){
 
-        rotateInput(vars);
-        System.out.println("***INPUT VARS "+vars[0]+" "+vars[1]+" "+vars[2]+" "+vars[3]+" "+vars[4]+" "+vars[5]+"***");
-        m0Vals = new float[]{vars[0],vars[1],vars[2]};
-        m1Vals = new float[]{vars[3],vars[4],vars[5]};
-
-    }
+    //convenience method for making native buffers
     FloatBuffer toFloatBuff(float[] array){
-
 
         ByteBuffer bb = ByteBuffer.allocateDirect(array.length * 4);
         bb.order(ByteOrder.nativeOrder());
@@ -405,19 +342,7 @@ public class GLRenderer implements Renderer {
         tfBuff.position(0);
 
         return tfBuff;
-    };
-
-    float[] rotateInput(float[] vars){
-        for(int i = 0; i< vars.length; i++){
-            float mod = ((float)(fCnt*i)%100f)/100f;
-            System.out.println("ind:"+i+" val:"+ mod+" cnt:"+fCnt*i%100);
-            vars[i] = vars[i]*mod;
-        }
-        float rMod = 1/(vars[0]+vars[1]+vars[2]+vars[3]+vars[4]+vars[5]);
-        float rVars[] = new float[6];
-        for(int i = 0; i<vars.length;i++){
-            rVars[i] = vars[i]*rMod;
-        }
-        return vars;
     }
+
 }
+

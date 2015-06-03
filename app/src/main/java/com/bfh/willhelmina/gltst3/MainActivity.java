@@ -9,11 +9,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 
-
+//should change this to use AppCompatActivity
 public class MainActivity extends ActionBarActivity {
-
 
     private GLSurfaceView glSurfaceView;
     static int sWidth;
@@ -21,56 +19,45 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
-        // Fullscreen mode
+        // set to fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        /*
-        // Retrieve our Relative layout from our main layout we just set to our view.
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.gamelayout);
-
-        // Attach our surfaceview to our relative layout from our main layout.
-        RelativeLayout.LayoutParams glParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        layout.addView(glSurfaceView, glParams);
-        */
-
+        //get metrics
         DisplayMetrics d = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(d);
         sWidth = d.widthPixels;
         sHeight = d.heightPixels;
 
-        // We create our Surfaceview for our OpenGL here.
+        // make surface view
         glSurfaceView = new GLSurf(this);
 
         //set view
-        setContentView(glSurfaceView);//(R.layout.activity_main);
+        setContentView(glSurfaceView);
     }
 
+    //Action bar stuff, pointless at the moment but leaving it in
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // nothing in the menu but leaving it for the FUTURE
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Handle action bar item clicks
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
 
-        return super.onOptionsItemSelected(item);
     }
 
+
+    //transmit pause/resume
     @Override
     protected void onPause() {
         super.onPause();
