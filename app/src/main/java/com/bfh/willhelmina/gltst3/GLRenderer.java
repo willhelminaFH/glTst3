@@ -16,7 +16,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 
 public class GLRenderer implements Renderer {
@@ -44,7 +43,6 @@ public class GLRenderer implements Renderer {
     float[] tValsA = new float[]{1/6,1/6,1/6,1/6,1/6,1/6};       // stores motion values for images
     float[] tValsB = new float[]{1/6,1/6,1/6,1/6,1/6,1/6};       // stores modifies for images
     float[] m0Vals = new float[]{1/6,1/6,1/6};  //vec3f for GLSL
-    float[] m1Vals = new float[]{1/6,1/6,1/6};  //vec3f for GLSL
     public FloatBuffer tfBuff;                  //stores float to buffer
 
 	// Misc
@@ -196,8 +194,6 @@ public class GLRenderer implements Renderer {
         mScreenWidth = MainActivity.sWidth;//1280;//
         mScreenHeight = MainActivity.sHeight;//768;//
 
-        System.out.println("****BITCHES"+mScreenWidth+" "+ mScreenHeight+"BITCHES****");
-
 		// create the triangles
 		SetupTriangle();
 
@@ -251,7 +247,6 @@ public class GLRenderer implements Renderer {
 		
 		// Retrieve our image from resources.
 		int id = mContext.getResources().getIdentifier("drawable/atlas0", null, mContext.getPackageName());
-		System.out.println("**bmp id: "+id+"**");
 
 		// Temporary create a bitmap
 		Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(), id);

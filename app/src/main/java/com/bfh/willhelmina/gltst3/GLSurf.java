@@ -2,6 +2,7 @@ package com.bfh.willhelmina.gltst3;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 
 public class GLSurf extends GLSurfaceView {
@@ -26,9 +27,8 @@ public class GLSurf extends GLSurfaceView {
 
     // touch in
     @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        System.out.println("touch captured");
-        mRenderer.processTouch(e);
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        mRenderer.processTouch(event);
         return true;
     }
 
